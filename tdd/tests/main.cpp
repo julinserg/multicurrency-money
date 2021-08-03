@@ -37,7 +37,10 @@ public:
         return std::static_pointer_cast<Money>(std::make_shared<Franc>(amount));
     }
 
-    virtual std::shared_ptr<Money> multipliedBy(int multiplier) = 0;
+    std::shared_ptr<Money> multipliedBy(int multiplier)
+    {
+        return std::make_unique<Money>(m_amount * multiplier, m_currency);
+    }
 
     std::string currency() const noexcept
     {
@@ -60,11 +63,6 @@ public:
     Dollar(int amount): Money(amount, "USD")
     {
     }
-
-    std::shared_ptr<Money> multipliedBy(int multiplier) override
-    {
-        return std::make_unique<Dollar>(m_amount * multiplier);
-    }
 };
 
 class Franc : public Money
@@ -72,11 +70,6 @@ class Franc : public Money
 public:
     Franc(int amount): Money(amount, "CHF")
     {
-    }
-
-    std::shared_ptr<Money> multipliedBy(int multiplier) override
-    {
-        return std::make_unique<Franc>(m_amount * multiplier);
     }
 };
 
