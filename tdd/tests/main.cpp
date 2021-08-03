@@ -16,13 +16,15 @@ class Franc;
 class Money
 {
 public:
-    Money(int amount): m_amount(amount)
+    Money(int amount, std::string currency): m_amount(amount),
+        m_currency(currency)
     {
     }
 
     bool equals(const Money& object) const noexcept
     {
-        return object.m_amount == this->m_amount && object.id() == this->id();
+        return object.m_amount == this->m_amount &&
+                object.currency() == this->currency();
     }
 
     static std::shared_ptr<Money> dollar(int amount)
@@ -36,10 +38,15 @@ public:
     }
 
     virtual std::shared_ptr<Money> multipliedBy(int multiplier) = 0;
-    virtual int id() const noexcept = 0;
+
+    std::string currency() const noexcept
+    {
+        return m_currency;
+    }
 
 protected:
     const int m_amount;
+    const std::string m_currency;
 };
 
 bool operator == (const Money& object1, const Money& object2)
@@ -50,37 +57,26 @@ bool operator == (const Money& object1, const Money& object2)
 class Dollar : public Money
 {
 public:
-    Dollar(int amount): Money(amount)
+    Dollar(int amount): Money(amount, "USD")
     {
     }
 
     std::shared_ptr<Money> multipliedBy(int multiplier) override
     {
         return std::make_unique<Dollar>(m_amount * multiplier);
-    }   
-
-    int id() const noexcept override
-    {
-        return 1;
     }
-
 };
 
 class Franc : public Money
 {
 public:
-    Franc(int amount): Money(amount)
+    Franc(int amount): Money(amount, "CHF")
     {
     }
 
     std::shared_ptr<Money> multipliedBy(int multiplier) override
     {
         return std::make_unique<Franc>(m_amount * multiplier);
-    }
-
-    int id() const noexcept override
-    {
-        return 2;
     }
 };
 
