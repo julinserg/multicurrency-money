@@ -12,10 +12,26 @@ public:
 
 };
 
-class Dollar
+class Money
 {
 public:
-    Dollar(int amount): m_amount(amount)
+    Money(int amount): m_amount(amount)
+    {
+    }
+
+    bool equals(const Money& object) const
+    {
+        return object.m_amount == m_amount;
+    }
+
+protected:
+    const int m_amount;
+};
+
+class Dollar : public Money
+{
+public:
+    Dollar(int amount): Money(amount)
     {
     }
 
@@ -24,13 +40,6 @@ public:
         return std::make_unique<Dollar>(m_amount * multiplier);
     }
 
-    bool equals(const Dollar& object) const
-    {
-        return object.m_amount == m_amount;
-    }
-
-private:
-    const int m_amount;
 };
 
 bool operator == (const Dollar& object1, const Dollar& object2)
@@ -38,10 +47,10 @@ bool operator == (const Dollar& object1, const Dollar& object2)
     return object1.equals(object2);
 }
 
-class Franc
+class Franc : public Money
 {
 public:
-    Franc(int amount): m_amount(amount)
+    Franc(int amount): Money(amount)
     {
     }
 
@@ -49,14 +58,6 @@ public:
     {
         return std::make_unique<Franc>(m_amount * multiplier);
     }
-
-    bool equals(const Franc& object) const
-    {
-        return object.m_amount == m_amount;
-    }
-
-private:
-    const int m_amount;
 };
 
 bool operator == (const Franc& object1, const Franc& object2)
@@ -73,11 +74,11 @@ TEST_F(MoneyTest, testMultiplication)
 
 TEST_F(MoneyTest, testEquality)
 {
-    Dollar five1(5);
-    Dollar five2(5);
-    Dollar six(6);
-    EXPECT_EQ(five1.equals(five2), true);
-    EXPECT_EQ(five1.equals(six), false);
+    EXPECT_EQ(Dollar(5).equals(Dollar(5)), true);
+    EXPECT_EQ(Dollar(5).equals(Dollar(6)), false);
+
+    EXPECT_EQ(Franc(5).equals(Franc(5)), true);
+    EXPECT_EQ(Franc(5).equals(Franc(6)), false);
 }
 
 TEST_F(MoneyTest, testFrancMultiplication)
