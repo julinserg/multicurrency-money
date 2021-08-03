@@ -19,10 +19,12 @@ public:
     {
     }
 
-    bool equals(const Money& object) const
+    bool equals(const Money& object) const noexcept
     {
-        return object.m_amount == m_amount;
+        return object.m_amount == this->m_amount && object.id() == this->id();
     }
+
+    virtual int id() const noexcept = 0;
 
 protected:
     const int m_amount;
@@ -38,6 +40,11 @@ public:
     std::unique_ptr<Dollar> multipliedBy(int multiplier)
     {
         return std::make_unique<Dollar>(m_amount * multiplier);
+    }
+
+    int id() const noexcept override
+    {
+        return 1;
     }
 
 };
@@ -57,6 +64,11 @@ public:
     std::unique_ptr<Franc> multipliedBy(int multiplier)
     {
         return std::make_unique<Franc>(m_amount * multiplier);
+    }
+
+    int id() const noexcept override
+    {
+        return 2;
     }
 };
 
@@ -79,6 +91,8 @@ TEST_F(MoneyTest, testEquality)
 
     EXPECT_EQ(Franc(5).equals(Franc(5)), true);
     EXPECT_EQ(Franc(5).equals(Franc(6)), false);
+
+    EXPECT_EQ(Franc(5).equals(Dollar(5)), false);
 }
 
 TEST_F(MoneyTest, testFrancMultiplication)
