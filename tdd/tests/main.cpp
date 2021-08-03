@@ -11,8 +11,7 @@ public:
     }
 
 };
-class Dollar;
-class Franc;
+
 class Money
 {
 public:
@@ -29,12 +28,12 @@ public:
 
     static std::shared_ptr<Money> dollar(int amount)
     {
-        return std::static_pointer_cast<Money>(std::make_shared<Dollar>(amount));
+        return std::make_shared<Money>(amount, "USD");
     }
 
     static std::shared_ptr<Money> franc(int amount)
     {
-        return std::static_pointer_cast<Money>(std::make_shared<Franc>(amount));
+        return std::make_shared<Money>(amount, "CHF");
     }
 
     std::shared_ptr<Money> multipliedBy(int multiplier)
@@ -56,23 +55,6 @@ bool operator == (const Money& object1, const Money& object2)
 {
     return object1.equals(object2);
 }
-
-class Dollar : public Money
-{
-public:
-    Dollar(int amount): Money(amount, "USD")
-    {
-    }
-};
-
-class Franc : public Money
-{
-public:
-    Franc(int amount): Money(amount, "CHF")
-    {
-    }
-};
-
 
 TEST_F(MoneyTest, testMultiplication)
 { 
