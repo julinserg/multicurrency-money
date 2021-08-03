@@ -11,7 +11,8 @@ public:
     }
 
 };
-
+class Dollar;
+class Franc;
 class Money
 {
 public:
@@ -24,11 +25,27 @@ public:
         return object.m_amount == this->m_amount && object.id() == this->id();
     }
 
+    static std::shared_ptr<Money> dollar(int amount)
+    {
+        return std::static_pointer_cast<Money>(std::make_shared<Dollar>(amount));
+    }
+
+    static std::shared_ptr<Money> franc(int amount)
+    {
+        return std::static_pointer_cast<Money>(std::make_shared<Franc>(amount));
+    }
+
+    virtual std::shared_ptr<Money> multipliedBy(int multiplier) = 0;
     virtual int id() const noexcept = 0;
 
 protected:
     const int m_amount;
 };
+
+bool operator == (const Money& object1, const Money& object2)
+{
+    return object1.equals(object2);
+}
 
 class Dollar : public Money
 {
@@ -37,10 +54,10 @@ public:
     {
     }
 
-    std::unique_ptr<Dollar> multipliedBy(int multiplier)
+    std::shared_ptr<Money> multipliedBy(int multiplier) override
     {
         return std::make_unique<Dollar>(m_amount * multiplier);
-    }
+    }   
 
     int id() const noexcept override
     {
@@ -49,11 +66,6 @@ public:
 
 };
 
-bool operator == (const Dollar& object1, const Dollar& object2)
-{
-    return object1.equals(object2);
-}
-
 class Franc : public Money
 {
 public:
@@ -61,7 +73,7 @@ public:
     {
     }
 
-    std::unique_ptr<Franc> multipliedBy(int multiplier)
+    std::shared_ptr<Money> multipliedBy(int multiplier) override
     {
         return std::make_unique<Franc>(m_amount * multiplier);
     }
@@ -72,34 +84,28 @@ public:
     }
 };
 
-bool operator == (const Franc& object1, const Franc& object2)
-{
-    return object1.equals(object2);
-}
 
 TEST_F(MoneyTest, testMultiplication)
-{
-    Dollar five(5);
-    EXPECT_EQ(Dollar(10), *five.multipliedBy(2));
-    EXPECT_EQ(Dollar(15), *five.multipliedBy(3));
+{ 
+    EXPECT_EQ(*Money::dollar(10), *Money::dollar(5)->multipliedBy(2));
+    EXPECT_EQ(*Money::dollar(15), *Money::dollar(5)->multipliedBy(3));
 }
 
 TEST_F(MoneyTest, testEquality)
 {
-    EXPECT_EQ(Dollar(5).equals(Dollar(5)), true);
-    EXPECT_EQ(Dollar(5).equals(Dollar(6)), false);
+    EXPECT_EQ(Money::dollar(5)->equals(*Money::dollar(5)), true);
+    EXPECT_EQ(Money::dollar(5)->equals(*Money::dollar(6)), false);
 
-    EXPECT_EQ(Franc(5).equals(Franc(5)), true);
-    EXPECT_EQ(Franc(5).equals(Franc(6)), false);
+    EXPECT_EQ(Money::franc(5)->equals(*Money::franc(5)), true);
+    EXPECT_EQ(Money::franc(5)->equals(*Money::franc(6)), false);
 
-    EXPECT_EQ(Franc(5).equals(Dollar(5)), false);
+    EXPECT_EQ(Money::franc(5)->equals(*Money::dollar(5)), false);
 }
 
 TEST_F(MoneyTest, testFrancMultiplication)
 {
-    Franc five(5);
-    EXPECT_EQ(Franc(10), *five.multipliedBy(2));
-    EXPECT_EQ(Franc(15), *five.multipliedBy(3));
+    EXPECT_EQ(*Money::franc(10), *Money::franc(5)->multipliedBy(2));
+    EXPECT_EQ(*Money::franc(15), *Money::franc(5)->multipliedBy(3));
 }
 
 int main(int argc, char** argv)
