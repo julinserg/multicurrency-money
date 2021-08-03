@@ -24,27 +24,26 @@ public:
         return std::make_unique<Dollar>(m_amount * multiplier);
     }
 
-    bool equals(const Dollar& object)
+    bool equals(const Dollar& object) const
     {
-        return object.amount() == m_amount;
+        return object.m_amount == m_amount;
     }
 
-    int amount() const noexcept
-    {
-        return m_amount;
-    }
 private:
     const int m_amount;
 
 };
 
+bool operator == (const Dollar& object1, const Dollar& object2)
+{
+    return object1.equals(object2);
+}
+
 TEST_F(MoneyTest, testMultiplication)
 {
     Dollar five(5);
-    auto result2 = five.multipliedBy(2);
-    EXPECT_EQ(10, result2->amount());
-    auto result3 = five.multipliedBy(3);
-    EXPECT_EQ(15, result3->amount());
+    EXPECT_EQ(Dollar(10), *five.multipliedBy(2));
+    EXPECT_EQ(Dollar(15), *five.multipliedBy(3));
 }
 
 TEST_F(MoneyTest, testEquality)
