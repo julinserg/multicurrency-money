@@ -1,10 +1,15 @@
 #include "sum.h"
 
-Sum::Sum(const Expression* one_,  const Expression* two_):
+Sum::Sum(std::shared_ptr<Expression> one_,  std::shared_ptr<Expression> two_):
     one(one_),
     two(two_)
 {
 
+}
+
+Sum::~Sum()
+{
+    int g = 0;
 }
 
 Money Sum::reduce(const Bank& bank, std::string currency) const
@@ -14,7 +19,15 @@ Money Sum::reduce(const Bank& bank, std::string currency) const
     return Money(amount, currency);
 }
 
-std::shared_ptr<Expression> Sum::plus(const Expression& object)
+std::shared_ptr<Expression> Sum::plus(std::shared_ptr<Expression> object)
 {
-    return nullptr;
+    return std::static_pointer_cast<Expression>(
+                std::make_shared<Sum>(shared_from_this(), object));
+}
+
+std::shared_ptr<Expression> Sum::multipliedBy(int multiplier) const
+{
+    return std::static_pointer_cast<Expression>(
+                 std::make_shared<Sum>(one->multipliedBy(multiplier),
+                                       two->multipliedBy(multiplier)));
 }

@@ -7,10 +7,11 @@
 #include <memory>
 #include <string>
 
-class Money : public Expression
+class Money : public Expression, public std::enable_shared_from_this<Money>
 {
 public:
     Money(int amount, std::string currency);
+    ~Money();
 
     bool equals(const Money& object) const noexcept;
 
@@ -18,9 +19,9 @@ public:
 
     static std::shared_ptr<Money> franc(int amount);
 
-    std::shared_ptr<Expression> multipliedBy(int multiplier);
+    std::shared_ptr<Expression> multipliedBy(int multiplier) const override;
 
-    std::shared_ptr<Expression> plus(const Expression& object);
+    std::shared_ptr<Expression> plus(std::shared_ptr<Expression> object);
 
     std::string currency() const noexcept;
 

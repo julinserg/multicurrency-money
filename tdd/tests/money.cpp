@@ -8,6 +8,11 @@ Money::Money(int amount, std::string currency): m_amount(amount),
 {
 }
 
+Money::~Money()
+{
+    int g = 0;
+}
+
 bool Money::equals(const Money& object) const noexcept
 {
     return object.m_amount == this->m_amount &&
@@ -24,15 +29,15 @@ std::shared_ptr<Money> Money::franc(int amount)
     return std::make_shared<Money>(amount, "CHF");
 }
 
-std::shared_ptr<Expression> Money::multipliedBy(int multiplier)
+std::shared_ptr<Expression> Money::multipliedBy(int multiplier) const
 {
     return std::make_shared<Money>(m_amount * multiplier, m_currency);
 }
 
-std::shared_ptr<Expression> Money::plus(const Expression& object)
+std::shared_ptr<Expression> Money::plus(std::shared_ptr<Expression> object)
 {
     return std::static_pointer_cast<Expression>(
-                std::make_shared<Sum>(this, &object));
+                std::make_shared<Sum>(shared_from_this(), object));
 }
 
 std::string Money::currency() const noexcept
