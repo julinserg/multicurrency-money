@@ -12,10 +12,12 @@ public:
 
 };
 
-
+class Sum;
+class Money;
 class Expression
 {
-
+public:
+    virtual Money reduce(std::string currency) const = 0;
 };
 
 class Money : public Expression
@@ -49,13 +51,25 @@ public:
 
     std::shared_ptr<Expression> plus(const Money& object)
     {
-        return std::make_shared<Money>(m_amount + object.m_amount, m_currency);
+        return std::static_pointer_cast<Expression>(
+                    std::make_shared<Sum>(*this, object));
     }
 
     std::string currency() const noexcept
     {
         return m_currency;
     }
+
+    int amount() const noexcept
+    {
+        return m_amount;
+    }
+
+    Money reduce(std::string currency) const override
+    {
+        return *this;
+    }
+
 
 protected:
     const int m_amount;
@@ -67,12 +81,33 @@ bool operator == (const Money& object1, const Money& object2)
     return object1.equals(object2);
 }
 
+
+class Sum : public Expression
+{
+public:
+    Sum(const Money& one_, const Money& two_):
+        one(one_),
+        two(two_)
+    {
+
+    }
+
+    Money reduce(std::string currency) const override
+    {
+        int amount = one.amount() + two.amount();
+        return Money(amount, currency);
+    }
+
+    Money one;
+    Money two;
+};
+
 class Bank
 {
 public:
-    std::shared_ptr<Money> reduce(const Expression& expression, std::string currency)
+    Money reduce(const Expression& expression, std::string currency) const
     {
-        return Money::dollar(10);
+        return expression.reduce(currency);
     }
 };
 
@@ -87,9 +122,34 @@ TEST_F(MoneyTest, testSimpleAddition)
     std::shared_ptr<Money> five = Money::dollar(5);
     std::shared_ptr<Expression> sum = five->plus(*five);
     Bank bank;
-    std::shared_ptr<Money> reduced = bank.reduce(*sum, "USD");
-    EXPECT_EQ(*Money::dollar(10), *reduced);
+    Money reduced = bank.reduce(*sum, "USD");
+    EXPECT_EQ(*Money::dollar(10), reduced);
 }
+
+TEST_F(MoneyTest, testPlusReturnsSum)
+{
+    std::shared_ptr<Money> five = Money::dollar(5);
+    std::shared_ptr<Expression> result = five->plus(*five);
+    std::shared_ptr<Sum> sum = std::static_pointer_cast<Sum>(result);
+    EXPECT_EQ(*five, sum->one);
+    EXPECT_EQ(*five, sum->two);
+}
+
+TEST_F(MoneyTest, testReduceSum)
+{
+    Sum sum(*Money::dollar(3), *Money::dollar(4));
+    Bank bank;
+    Money result = bank.reduce(sum, "USD");
+    EXPECT_EQ(*Money::dollar(7), result);
+}
+
+TEST_F(MoneyTest, testReduceMoney)
+{
+     Bank bank;
+     Money result = bank.reduce(*Money::dollar(1), "USD");
+     EXPECT_EQ(*Money::dollar(1), result);
+}
+
 
 TEST_F(MoneyTest, testEquality)
 {
@@ -102,10 +162,6 @@ TEST_F(MoneyTest, testEquality)
     EXPECT_EQ(Money::franc(5)->equals(*Money::dollar(5)), false);
 }
 
-TEST_F(MoneyTest, testSimpleAdditional)
-{
-
-}
 
 int main(int argc, char** argv)
 {
