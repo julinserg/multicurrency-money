@@ -3,6 +3,10 @@
 
 #include <memory>
 
+#include "money.h"
+#include "bank.h"
+#include "sum.h"
+
 class MoneyTest : public testing::Test
 {
 public:
@@ -12,104 +16,7 @@ public:
 
 };
 
-class Sum;
-class Money;
-class Expression
-{
-public:
-    virtual Money reduce(std::string currency) const = 0;
-};
 
-class Money : public Expression
-{
-public:
-    Money(int amount, std::string currency): m_amount(amount),
-        m_currency(std::move(currency))
-    {
-    }
-
-    bool equals(const Money& object) const noexcept
-    {
-        return object.m_amount == this->m_amount &&
-                object.currency() == this->currency();
-    }
-
-    static std::shared_ptr<Money> dollar(int amount)
-    {
-        return std::make_shared<Money>(amount, "USD");
-    }
-
-    static std::shared_ptr<Money> franc(int amount)
-    {
-        return std::make_shared<Money>(amount, "CHF");
-    }
-
-    std::shared_ptr<Money> multipliedBy(int multiplier)
-    {
-        return std::make_shared<Money>(m_amount * multiplier, m_currency);
-    }
-
-    std::shared_ptr<Expression> plus(const Money& object)
-    {
-        return std::static_pointer_cast<Expression>(
-                    std::make_shared<Sum>(*this, object));
-    }
-
-    std::string currency() const noexcept
-    {
-        return m_currency;
-    }
-
-    int amount() const noexcept
-    {
-        return m_amount;
-    }
-
-    Money reduce(std::string currency) const override
-    {
-        return *this;
-    }
-
-
-protected:
-    const int m_amount;
-    const std::string m_currency;
-};
-
-bool operator == (const Money& object1, const Money& object2)
-{
-    return object1.equals(object2);
-}
-
-
-class Sum : public Expression
-{
-public:
-    Sum(const Money& one_, const Money& two_):
-        one(one_),
-        two(two_)
-    {
-
-    }
-
-    Money reduce(std::string currency) const override
-    {
-        int amount = one.amount() + two.amount();
-        return Money(amount, currency);
-    }
-
-    Money one;
-    Money two;
-};
-
-class Bank
-{
-public:
-    Money reduce(const Expression& expression, std::string currency) const
-    {
-        return expression.reduce(currency);
-    }
-};
 
 TEST_F(MoneyTest, testMultiplication)
 {
@@ -148,6 +55,14 @@ TEST_F(MoneyTest, testReduceMoney)
      Bank bank;
      Money result = bank.reduce(*Money::dollar(1), "USD");
      EXPECT_EQ(*Money::dollar(1), result);
+}
+
+TEST_F(MoneyTest, testReduceMoneyDifferentCurrency)
+{
+    Bank bank;
+    bank.addRate("CHF", "USD", 2);
+    Money result = bank.reduce(*Money::franc(2), "USD");
+    EXPECT_EQ(*Money::dollar(1), result);
 }
 
 
