@@ -7,12 +7,13 @@
 class Sum : public Expression
 {
 public:
-    Sum(const Money& one_, const Money& two_);
+    Sum(const Expression* one_, const Expression* two_);
 
     Money reduce(const Bank& bank, std::string currency) const override;
+    std::shared_ptr<Expression> plus(const Expression& object) override;
 
-    Money one;
-    Money two;
+    const Expression* one;
+    const Expression* two;
 };
 
 #endif // SUM_H

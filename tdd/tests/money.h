@@ -18,9 +18,9 @@ public:
 
     static std::shared_ptr<Money> franc(int amount);
 
-    std::shared_ptr<Money> multipliedBy(int multiplier);
+    std::shared_ptr<Expression> multipliedBy(int multiplier);
 
-    std::shared_ptr<Expression> plus(const Money& object);
+    std::shared_ptr<Expression> plus(const Expression& object);
 
     std::string currency() const noexcept;
 

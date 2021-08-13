@@ -24,15 +24,15 @@ std::shared_ptr<Money> Money::franc(int amount)
     return std::make_shared<Money>(amount, "CHF");
 }
 
-std::shared_ptr<Money> Money::multipliedBy(int multiplier)
+std::shared_ptr<Expression> Money::multipliedBy(int multiplier)
 {
     return std::make_shared<Money>(m_amount * multiplier, m_currency);
 }
 
-std::shared_ptr<Expression> Money::plus(const Money& object)
+std::shared_ptr<Expression> Money::plus(const Expression& object)
 {
     return std::static_pointer_cast<Expression>(
-                std::make_shared<Sum>(*this, object));
+                std::make_shared<Sum>(this, &object));
 }
 
 std::string Money::currency() const noexcept
