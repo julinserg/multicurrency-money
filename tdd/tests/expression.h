@@ -10,6 +10,8 @@ class Bank;
 class Expression
 {
 public:
+    Expression() = default;
+    virtual ~Expression() = default;
     virtual Money reduce(const Bank& bank, std::string currency) const = 0;
     virtual std::shared_ptr<Expression> plus(std::shared_ptr<Expression> object) = 0;
     virtual std::shared_ptr<Expression> multipliedBy(int multiplier) const = 0;

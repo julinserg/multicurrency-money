@@ -9,7 +9,6 @@ Sum::Sum(std::shared_ptr<Expression> one_,  std::shared_ptr<Expression> two_):
 
 Sum::~Sum()
 {
-    int g = 0;
 }
 
 Money Sum::reduce(const Bank& bank, std::string currency) const

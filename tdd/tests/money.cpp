@@ -10,7 +10,6 @@ Money::Money(int amount, std::string currency): m_amount(amount),
 
 Money::~Money()
 {
-    int g = 0;
 }
 
 bool Money::equals(const Money& object) const noexcept
