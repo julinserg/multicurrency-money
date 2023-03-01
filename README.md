@@ -1,4 +1,4 @@
-# tdd_example_cpp
+# Multicurrency money
 
 Examples "Multicurrency money" from Kent Beck's book "Test Driven Development" written in C++.    
 One commit - one chapter from a book.     
